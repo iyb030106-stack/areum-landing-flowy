@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 
+import { saveLead, trackEvent } from '../lib/analytics';
+
 const EmailFormPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
+      await saveLead(email);
+      await trackEvent('email_submit');
       setSubmitted(true);
       // Here you would typically send the email to your backend
     }

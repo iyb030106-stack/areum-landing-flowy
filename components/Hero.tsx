@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { trackEvent } from '../lib/analytics';
+
 interface HeroProps {
   onCtaClick: () => void;
 }
@@ -12,7 +14,10 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick }) => {
       </h1>
 
       <button 
-        onClick={onCtaClick}
+        onClick={() => {
+          void trackEvent('cta_click');
+          onCtaClick();
+        }}
         className="mb-8 inline-flex items-center justify-center bg-black text-white px-6 py-4 rounded-xl active:scale-95 transition-transform hover:bg-gray-800 shadow-lg"
       >
         <span className="text-base font-bold leading-none">
