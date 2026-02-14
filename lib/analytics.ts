@@ -3,6 +3,10 @@ import { supabase } from './supabaseClient';
 const SESSION_ID_KEY = 'areum_session_id_v1';
 let didWarnMissingSupabaseConfig = false;
 
+function isLocalDev(): boolean {
+  return Boolean(import.meta.env.DEV);
+}
+
 function generateSessionId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -27,6 +31,7 @@ export async function trackEvent(
   eventName: 'page_view' | 'cta_click' | 'email_submit',
   metadata?: Record<string, unknown>
 ): Promise<void> {
+  if (isLocalDev()) return;
   if (!supabase) {
     if (!didWarnMissingSupabaseConfig && typeof window !== 'undefined') {
       didWarnMissingSupabaseConfig = true;
@@ -52,6 +57,7 @@ export async function trackEvent(
 }
 
 export async function saveLead(email: string): Promise<void> {
+  if (isLocalDev()) return;
   if (!supabase) return;
 
   const { error } = await supabase.from('leads').insert({
