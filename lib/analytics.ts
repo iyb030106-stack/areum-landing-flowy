@@ -37,27 +37,31 @@ export async function trackEvent(
     }
     return;
   }
-  try {
-    await supabase.from('events').insert({
-      event_name: eventName,
-      session_id: getSessionId(),
-      path: typeof window !== 'undefined' ? window.location.pathname : null,
-      metadata: metadata ?? null
-    });
-  } catch {
-    // Intentionally swallow errors so analytics never blocks UX
+
+  const { error } = await supabase.from('events').insert({
+    event_name: eventName,
+    session_id: getSessionId(),
+    path: typeof window !== 'undefined' ? window.location.pathname : null,
+    metadata: metadata ?? null
+  });
+
+  if (error && typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error('Supabase trackEvent insert failed', error);
   }
 }
 
 export async function saveLead(email: string): Promise<void> {
   if (!supabase) return;
-  try {
-    await supabase.from('leads').insert({
-      email,
-      session_id: getSessionId(),
-      source: 'landing'
-    });
-  } catch {
-    // Intentionally swallow errors so submit UX is smooth
+
+  const { error } = await supabase.from('leads').insert({
+    email,
+    session_id: getSessionId(),
+    source: 'landing'
+  });
+
+  if (error && typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error('Supabase saveLead insert failed', error);
   }
 }
