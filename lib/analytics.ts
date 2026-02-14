@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 
 const SESSION_ID_KEY = 'areum_session_id_v1';
+let didWarnMissingSupabaseConfig = false;
 
 function generateSessionId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -26,7 +27,16 @@ export async function trackEvent(
   eventName: 'page_view' | 'cta_click' | 'email_submit',
   metadata?: Record<string, unknown>
 ): Promise<void> {
-  if (!supabase) return;
+  if (!supabase) {
+    if (!didWarnMissingSupabaseConfig && typeof window !== 'undefined') {
+      didWarnMissingSupabaseConfig = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment variables.'
+      );
+    }
+    return;
+  }
   try {
     await supabase.from('events').insert({
       event_name: eventName,
